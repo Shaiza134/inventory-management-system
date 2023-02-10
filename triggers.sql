@@ -85,26 +85,6 @@ set new.profit :=  (select sum(profit)
                     where orderDate = new.produstSaleDate);              
 END //
 
-
-DELIMITER //
-create trigger aaaPayment
-before INSERT ON payment FOR EACH ROW  
-BEGIN
-declare tAmount decimal(10, 2);
-set new.paymentDate = curdate();
-set tAmount := (select pAmount from cust_prod
-                where prodId = (select productId
-from order_product where orderId = new.orderId));
-if (new.paymentAmount <= tAmount) then
-set new.remainingAmount = tAmount-new.paymentAmount;
-end if;
-if(new.orderId=any(select orderId from payment))  then
-set new.remainingAmount=(select remainingAmount from payment where orderId=new.orderId)-new.paymentAmount;
-end if;
-end //
-drop trigger aaaPayment
-
-
 delimiter //
 create trigger insert_orderprod
 after insert on cust_prod
